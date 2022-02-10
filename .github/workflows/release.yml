@@ -1,0 +1,168 @@
+# This workflow will build the project, generate and publish the Javadoc on GitHub Pages (must configure GitHub Pages to the gh-pages branch)
+# then create a pre-release or a release depending on the version (pre-release if the version major is < 0)
+# and add a generated executable jar and a ubuntu, windows, and macos installer as assets to this release
+name: Java build and release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    name: build 🛠️
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17' # change to desired jdk version
+          distribution: 'adopt'
+
+      - name: Grant execution permission of script
+        run: chmod +x gradlew
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@bc3340afc5e3cc44f2321809ac090d731c13c514
+        with:
+          arguments: build
+          
+      - name: Get Gradle project version from tag
+        id: version
+        run: echo "::set-output name=projectVersion::$(./gradlew printTagVersion -q)"
+
+      - name: Generate Javadoc
+        uses: gradle/gradle-build-action@4137be6a8bf7d7133955359dbd952c0ca73b1021
+        with:
+          arguments: javadoc
+
+      - name: Deploy Javadoc to GitHub Pages
+        if: success()
+        uses: crazy-max/ghaction-github-pages@v2
+        with:
+          target_branch: gh-pages
+          build_dir: app/build/docs/javadoc
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create prerelease
+        if: startsWith(github.ref, 'refs/tags/v0')
+        id: prerelease
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: true
+          files: ./app/build/libs/*.jar
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/v0') == false
+        id: release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: ./app/build/libs/*.jar
+          
+    outputs:
+      release_url: ${{ steps.release.outputs.upload_url }}
+      prerelease_url: ${{ steps.prerelease.outputs.upload_url}}
+      projectVersionOutput : ${{ steps.version.outputs.projectVersion }}
+
+  deploy:
+    name: deploy 🚀 
+    needs: [ build ]
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17' # change to desired jdk version
+          distribution: 'adopt'
+
+      - name: Grant execution permission for Linux and Macos
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        run: chmod +x gradlew
+      
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@4137be6a8bf7d7133955359dbd952c0ca73b1021
+        with:
+          arguments: build
+
+      - name: Build installer with jpackage
+        if: matrix.os != 'macos-latest' || !startsWith(github.ref, 'refs/tags/v0')
+        uses: gradle/gradle-build-action@4137be6a8bf7d7133955359dbd952c0ca73b1021
+        with:
+          arguments: jpackage
+
+      - name: Pre-Release for Ubuntu
+        if: matrix.os == 'ubuntu-latest' && startsWith(github.ref, 'refs/tags/v0')
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.build.outputs.prerelease_url }}
+          asset_path: ./app/build/dist/javaTemplateProject_${{ needs.build.outputs.projectVersionOutput }}-1_amd64.deb
+          asset_name: javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.deb
+          asset_content_type: application/deb
+
+      - name: Pre-Release for Windows
+        if: matrix.os == 'windows-latest' && startsWith(github.ref, 'refs/tags/v0')
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.build.outputs.prerelease_url }}
+          asset_path: ./app/build/dist/javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.exe
+          asset_name: javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.exe
+          asset_content_type: application/exe
+
+      # Pre-release not supported for macos, version majors lower than 1 are not supported
+      
+      - name: Release for Ubuntu
+        if: matrix.os == 'ubuntu-latest' && startsWith(github.ref, 'refs/tags/v0') == false
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.build.outputs.release_url }}
+          asset_path: ./app/build/dist/javaTemplateProject_${{ needs.build.outputs.projectVersionOutput }}-1_amd64.deb
+          asset_name: javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.deb
+          asset_content_type: application/deb
+
+      - name: Release for Windows
+        if: matrix.os == 'windows-latest' && startsWith(github.ref, 'refs/tags/v0') == false
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.build.outputs.release_url }}
+          asset_path: ./app/build/dist/javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.exe
+          asset_name: javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.exe
+          asset_content_type: application/exe
+
+      - name: Release for MacOS
+        if: matrix.os == 'macos-latest' && startsWith(github.ref, 'refs/tags/v0') == false
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.build.outputs.release_url }}
+          asset_path: ./app/build/dist/javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.dmg
+          asset_name: javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.dmg
+          asset_content_type: application/dmg
