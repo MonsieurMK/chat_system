@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GestionnaireConv {
-    public List<Conversation> conversations = new ArrayList<>();
+    public static List<Conversation> conversations = new ArrayList<>();
 
     public List<Utilisateur> utilisateurs = new ArrayList<>();
 
@@ -20,6 +20,17 @@ public class GestionnaireConv {
     }
 
     public void fermerConversation(Conversation conversation) {
+    }
+
+    public static void ajouterConversation(Conversation conversation) {
+        conversations.add(conversation);
+    }
+
+    // change String to Message
+    public static void envoyerMessage(String message, Conversation conversation) {
+        // debug test text message only
+        conversations.get(conversations.indexOf(conversation)).envoyerMessage(new Texte(null, message));
+        System.out.println("Message sent");
     }
 
 }

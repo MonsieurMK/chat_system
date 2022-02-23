@@ -1,17 +1,21 @@
 package JavaProjectTemplate.Modele;
 
 
+import java.net.InetAddress;
+
 public class Utilisateur {
-    private String addresseIP;
+    private InetAddress addresseIP;
 
     private String pseudonyme;
 
     public Conversation conversation;
 
-    public Utilisateur(String addresseIP, String pseudonyme) {
+    public Utilisateur(InetAddress addresseIP, String pseudonyme) {
+        this.addresseIP = addresseIP;
+        this.pseudonyme = pseudonyme;
     }
 
-    public String getAddresseIP() {
+    public InetAddress getAddresseIP() {
         // Automatically generated method. Please delete this comment before entering specific code.
         return this.addresseIP;
     }

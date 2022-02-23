@@ -21,7 +21,7 @@ plugins {
 }
 
 // Change to project name
-mainClassName = 'JavaProjectTemplate.App'
+mainClassName = 'ChatSystem.App'
 // Automatically gets the version from the latest git tag
 project.version = gitVersionCalculator.calculateVersion("v").minus(".dev").minus("+dev").replaceAll("\\+[0-9]+", "")
 
@@ -73,7 +73,7 @@ jar {
         )
     }
 
-    baseName 'javaApplicationTemplate' // Change to the desired executable jar name
+    baseName 'chatsystem' // Change to the desired executable jar name
 
     from {
         configurations.runtimeClasspath.collect {it.isDirectory() ? it : zipTree(it)}
@@ -85,11 +85,11 @@ tasks.jpackage {
     input = "${buildDir}/libs"
     destination = "${buildDir}/dist"
 
-    appName = "javaApplicationTemplate" // Change to the desired installer name
+    appName = "chatsystem" // Change to the desired installer name
     appVersion = project.version
     type = org.panteleyev.jpackage.ImageType.DEFAULT
-    appDescription = "None" // Change to the desired application description
-    vendor = "None" 
+    appDescription = "Local network decentralized chat system" // Change to the desired application description
+    vendor = "MonsieurSinge"
 
     mainClass = "$mainClassName"
     mainJar = jar.archiveFileName.get()
@@ -116,7 +116,7 @@ tasks.jpackage {
     // icon = "${buildDir}/resources/main/logo.png" // application icon in .png format for linux
 
     // OS X
-    macPackageName = "javaApplicationTemplate" // Change to the desired package name (or jar.archiveBaseName.get())
+    macPackageName = "chatsystem" // Change to the desired package name (or jar.archiveBaseName.get())
 
     /*
     mac {

@@ -7,6 +7,7 @@ public class Texte extends Message {
 
     public Texte(Date dateEnvoi, String contenu) {
         super(null);
+        this.contenu = contenu;
     }
 
     public String getContenu() {

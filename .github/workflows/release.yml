@@ -117,8 +117,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.build.outputs.prerelease_url }}
-          asset_path: ./app/build/dist/javaTemplateProject_${{ needs.build.outputs.projectVersionOutput }}-1_amd64.deb
-          asset_name: javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.deb
+          asset_path: ./app/build/dist/chatsystem_${{ needs.build.outputs.projectVersionOutput }}-1_amd64.deb
+          asset_name: chatsystem-${{ needs.build.outputs.projectVersionOutput }}.deb
           asset_content_type: application/deb
 
       - name: Pre-Release for Windows
@@ -128,8 +128,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.build.outputs.prerelease_url }}
-          asset_path: ./app/build/dist/javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.exe
-          asset_name: javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.exe
+          asset_path: ./app/build/dist/chatsystem-${{ needs.build.outputs.projectVersionOutput }}.exe
+          asset_name: chatsystem-${{ needs.build.outputs.projectVersionOutput }}.exe
           asset_content_type: application/exe
 
       # Pre-release not supported for macos, version majors lower than 1 are not supported
@@ -141,8 +141,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.build.outputs.release_url }}
-          asset_path: ./app/build/dist/javaTemplateProject_${{ needs.build.outputs.projectVersionOutput }}-1_amd64.deb
-          asset_name: javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.deb
+          asset_path: ./app/build/dist/chatsystem_${{ needs.build.outputs.projectVersionOutput }}-1_amd64.deb
+          asset_name: chatsystem-${{ needs.build.outputs.projectVersionOutput }}.deb
           asset_content_type: application/deb
 
       - name: Release for Windows
@@ -152,8 +152,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.build.outputs.release_url }}
-          asset_path: ./app/build/dist/javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.exe
-          asset_name: javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.exe
+          asset_path: ./app/build/dist/chatsystem-${{ needs.build.outputs.projectVersionOutput }}.exe
+          asset_name: chatsystem-${{ needs.build.outputs.projectVersionOutput }}.exe
           asset_content_type: application/exe
 
       - name: Release for MacOS
@@ -163,6 +163,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.build.outputs.release_url }}
-          asset_path: ./app/build/dist/javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.dmg
-          asset_name: javaTemplateProject-${{ needs.build.outputs.projectVersionOutput }}.dmg
+          asset_path: ./app/build/dist/chatsystem-${{ needs.build.outputs.projectVersionOutput }}.dmg
+          asset_name: chatsystem-${{ needs.build.outputs.projectVersionOutput }}.dmg
           asset_content_type: application/dmg
