@@ -1,12 +1,13 @@
-package JavaProjectTemplate.Modele;
+package ChatSystem.Modele;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class Texte extends Message {
     private String contenu;
 
-    public Texte(Date dateEnvoi, String contenu) {
-        super(null);
+    public Texte(LocalDateTime dateEnvoi, String contenu, Utilisateur envoyeur) {
+        super(dateEnvoi, envoyeur);
         this.contenu = contenu;
     }
 
