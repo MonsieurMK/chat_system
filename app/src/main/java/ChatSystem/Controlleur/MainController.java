@@ -13,12 +13,12 @@ import java.util.List;
 
 public class MainController {
 
-    private MainFrame mainFrame;
-    private GestionnaireConv gestionnaireConv;
+    private final MainFrame mainFrame;
+    private final GestionnaireConv gestionnaireConv;
 
     //private List<Utilisateur> utilisateursDetectes;
-    private HashMap<InetAddress, Utilisateur> addressUtilisateurHashMap;
-    private List<Conversation> conversationsActives;
+    private final HashMap<InetAddress, Utilisateur> addressUtilisateurHashMap;
+    private final List<Conversation> conversationsActives;
 
     // temp
     private Conversation currentConversation;
@@ -43,9 +43,14 @@ public class MainController {
      */
     public void detectUser(Utilisateur utilisateur) {
         if (!this.addressUtilisateurHashMap.containsKey(utilisateur.getAddresseIP())) {
-            this.mainFrame.addUserToList(utilisateur);
             this.addressUtilisateurHashMap.put(utilisateur.getAddresseIP(), utilisateur);
+            this.mainFrame.addUserToList(utilisateur);
         }
+    }
+
+    public void refreshUserList() {
+        this.addressUtilisateurHashMap.clear();
+        this.mainFrame.refreshUserList();
     }
 
     public void openReceivedConversation(Conversation conversation) {
@@ -75,6 +80,9 @@ public class MainController {
     public void removeConversation(Conversation conversation) {
         this.conversationsActives.remove(conversation);
         this.mainFrame.removeConversation(conversation);
+        if (this.currentConversation.equals(conversation)) {
+            this.mainFrame.clearDisplayedMessages();
+        }
     }
     /*
     called from model

@@ -15,17 +15,15 @@ import java.util.HashMap;
 import java.util.List;
 
 public class GestionnaireConv {
-    private static List<Conversation> conversations = new ArrayList<>();
+    private final List<Conversation> conversations = new ArrayList<>();
 
     //private List<Utilisateur> utilisateurs = new ArrayList<>();
-    private HashMap<InetAddress, Utilisateur> addressUtilisateurHashMap = new HashMap<>();
+    private final HashMap<InetAddress, Utilisateur> addressUtilisateurHashMap = new HashMap<>();
 
     private UtilisateurPrive utilisateurPrive;
-    private ConnecteurConv connecteurConv;
-    private RecepteurUtilisateur recepteurUtilisateur;
-    private EnvoyeurUtilisateur envoyeurUtilisateur;
+    private final ConnecteurConv connecteurConv;
 
-    private MainController mainController;
+    private final MainController mainController;
 
     public GestionnaireConv(String privateUsername, MainController mainController,
                             int tcpServerPort, int tcpClientPort,
@@ -40,10 +38,10 @@ public class GestionnaireConv {
         this.connecteurConv = new ConnecteurConv(tcpServerPort, tcpClientPort, this);
         this.connecteurConv.start();
 
-        this.recepteurUtilisateur = new RecepteurUtilisateur(udpServerPort, this);
-        this.envoyeurUtilisateur = new EnvoyeurUtilisateur(udpClientPort, this.utilisateurPrive.getAddresseIP(), this.utilisateurPrive.getPseudonyme());
-        this.recepteurUtilisateur.start();
-        this.envoyeurUtilisateur.start();
+        RecepteurUtilisateur recepteurUtilisateur = new RecepteurUtilisateur(udpServerPort, this);
+        EnvoyeurUtilisateur envoyeurUtilisateur = new EnvoyeurUtilisateur(udpClientPort, this.utilisateurPrive.getAddresseIP(), this.utilisateurPrive.getPseudonyme());
+        recepteurUtilisateur.start();
+        envoyeurUtilisateur.start();
     }
 
     public void changerPseudo(Utilisateur utilisateur, String pseudonyme) {
@@ -51,14 +49,15 @@ public class GestionnaireConv {
 
     public Conversation ouvrirConversation(Utilisateur utilisateur) {
         Conversation conversation = this.connecteurConv.connecter(utilisateur);
-        this.addressUtilisateurHashMap.put(utilisateur.getAddresseIP(), utilisateur);
-        this.conversations.add(conversation);
+        if (!this.conversations.contains(conversation)) {
+            this.conversations.add(conversation);
+        }
         return conversation;
     }
 
     public void fermerConversation(Conversation conversation) {
         this.conversations.remove(conversation);
-        this.mainController.removeConversation (conversation);
+        this.mainController.removeConversation(conversation);
     }
 
     public UtilisateurPrive getUtilisateurPrive() {
@@ -67,11 +66,12 @@ public class GestionnaireConv {
 
     public void ajouterConversation(Socket socket) {
         Utilisateur utilisateur = this.mainController.getUtilisateurFromAddress(socket.getInetAddress());
-        this.addressUtilisateurHashMap.put(socket.getInetAddress(), utilisateur);
         Conversation conversation = new Conversation(utilisateur.getPseudonyme(), utilisateur, socket, this);
-        conversation.start();
-        conversations.add(conversation);
-        this.mainController.openReceivedConversation(conversation);
+        if (!this.conversations.contains(conversation)) {
+            conversation.start();
+            conversations.add(conversation);
+            this.mainController.openReceivedConversation(conversation);
+        }
     }
 
     // change String to Message
@@ -93,4 +93,8 @@ public class GestionnaireConv {
         }
     }
 
+    public void refreshUserList() {
+        this.addressUtilisateurHashMap.clear();
+        this.mainController.refreshUserList();
+    }
 }

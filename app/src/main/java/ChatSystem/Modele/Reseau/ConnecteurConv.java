@@ -15,9 +15,9 @@ public class ConnecteurConv extends Thread {
     public static final int PORT = 9000;
 
     // debug
-    private int serverPort;
-    private int clientPort;
-    private GestionnaireConv gestionnaireConv;
+    private final int serverPort;
+    private final int clientPort;
+    private final GestionnaireConv gestionnaireConv;
 
     public ConnecteurConv(int serverPort, int clientPort, GestionnaireConv gestionnaireConv) {
         this.serverPort = serverPort;
@@ -46,9 +46,10 @@ public class ConnecteurConv extends Thread {
     }
 
     // listening for connections
+    @SuppressWarnings("InfiniteLoopStatement")
     @Override
     public void run() {
-        System.out.println("Server listening for new connections ");
+        System.out.println("Server listening for new connections");
         try {
             ServerSocket servSocket = new ServerSocket(this.serverPort);
             while (true) {

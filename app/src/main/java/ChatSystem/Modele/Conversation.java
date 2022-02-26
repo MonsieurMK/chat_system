@@ -14,7 +14,7 @@ import java.util.Objects;
 
 public class Conversation extends Thread {
 
-    private Socket socket;
+    private final Socket socket;
     private BufferedReader in;
     private PrintStream out;
 
@@ -22,6 +22,7 @@ public class Conversation extends Thread {
 
     private List<Utilisateur> utilisateurs = new ArrayList<>();
 
+    @SuppressWarnings("FieldMayBeFinal")
     private List<Message> messages = new ArrayList<>();
 
     private UtilisateurPrive utilisateurPrive;
@@ -91,23 +92,27 @@ public class Conversation extends Thread {
     // must send and receive objects instead of strings
     public void run() {
         System.out.println("Listening for new messages");
-        String msg = null;
+        String msg;
         while (true) {
             try {
                 msg = this.in.readLine();
-                System.out.println("RECEIVED MSG: " + msg);
-                // works for single user conv only
-                Message message = new Texte(LocalDateTime.now(), msg, this.utilisateurs.get(0));
-                this.gestionnaireConv.receptionMessage(this, message);
-                this.messages.add(message);
+                if (msg != null) {
+                    // works for single user conv only
+                    Message message = new Texte(LocalDateTime.now(), msg, this.utilisateurs.get(0));
+                    this.gestionnaireConv.receptionMessage(this, message);
+                    this.messages.add(message);
+                } else {
+                    System.out.println("lost connection");
+                    break;
+                }
             } catch (SocketException se) {
                 System.out.println("lost connection");
-                this.gestionnaireConv.fermerConversation(this);
                 break;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        this.gestionnaireConv.fermerConversation(this);
     }
 
     @Override
@@ -115,7 +120,7 @@ public class Conversation extends Thread {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Conversation that = (Conversation) o;
-        return socket.equals(that.socket);
+        return socket.getInetAddress().equals(that.socket.getInetAddress());
     }
 
     @Override

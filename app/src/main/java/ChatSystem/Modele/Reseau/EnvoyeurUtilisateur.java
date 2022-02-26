@@ -1,11 +1,9 @@
 package ChatSystem.Modele.Reseau;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
 
 public class EnvoyeurUtilisateur extends Thread {
 
@@ -18,15 +16,12 @@ public class EnvoyeurUtilisateur extends Thread {
     private DatagramPacket packet;
     private byte[] buffer;
 
-    private InetAddress address;
-
     // debug
-    private int port;
-    private String msg;
+    private final int port;
+    private final String msg;
 
     public EnvoyeurUtilisateur(int port, InetAddress address, String msg) {
         this.port = port;
-        this.address = address;
         this.msg = msg;
         try {
             this.sock = new DatagramSocket();
@@ -38,15 +33,30 @@ public class EnvoyeurUtilisateur extends Thread {
     }
 
     public void envoyer(String msg) {
-        this.buffer = msg.getBytes(StandardCharsets.UTF_8);
-        this.packet = new DatagramPacket(this.buffer, msg.length(), this.address, this.port);
         try {
-            this.sock.send(this.packet);
+            this.buffer = msg.getBytes(StandardCharsets.UTF_8);
+
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = interfaces.nextElement();
+                for (InterfaceAddress interfaceAddress :
+                        networkInterface.getInterfaceAddresses()) {
+                    InetAddress broadcast = interfaceAddress.getBroadcast();
+                    if (broadcast == null) {
+                        continue;
+                    }
+
+                    this.packet = new DatagramPacket(this.buffer, msg.length(), broadcast, this.port);
+
+                    this.sock.send(this.packet);
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    @SuppressWarnings({"InfiniteLoopStatement", "BusyWait"})
     @Override
     public void run() {
         while (true) {

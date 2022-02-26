@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.Date;
 import java.util.ResourceBundle;
 
+@SuppressWarnings({"rawtypes", "Convert2Lambda", "unchecked", "SameParameterValue"})
 public class MainFrame extends JFrame {
     private JPanel mainPanel;
     private JPanel sidePanel;
@@ -37,9 +38,9 @@ public class MainFrame extends JFrame {
     private JButton sendButton;
     private JPanel sendingPanel;
 
-    private MainController mainController;
+    private final MainController mainController;
 
-    private static DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM HH:mm:ss");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM HH:mm:ss");
 
     public MainFrame(String title, boolean isFullscreen, MainController mainController) {
         super(title);
@@ -78,7 +79,9 @@ public class MainFrame extends JFrame {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-                    MainFrame.this.mainController.openConversation((Utilisateur) usersList.getSelectedValue());
+                    if (usersList.getSelectedValue() != null) {
+                        MainFrame.this.mainController.openConversation((Utilisateur) usersList.getSelectedValue());
+                    }
                 }
             }
         });
@@ -95,10 +98,12 @@ public class MainFrame extends JFrame {
     }
 
     private void sendMessage() {
-        Texte message = new Texte(LocalDateTime.now(), sendingMessageField.getText(), this.mainController.getUtilisateurPrive());
-        this.mainController.sendMessage(message);
-        this.getMessageListModel().addElement(displayTexte((Texte) message));
-        sendingMessageField.setText("");
+        if (!sendingMessageField.getText().isBlank()) {
+            Texte message = new Texte(LocalDateTime.now(), sendingMessageField.getText(), this.mainController.getUtilisateurPrive());
+            this.mainController.sendMessage(message);
+            this.getMessageListModel().addElement(displayTexte(message));
+            sendingMessageField.setText("");
+        }
     }
 
     public void receiveMessage(Message message) {
@@ -109,6 +114,10 @@ public class MainFrame extends JFrame {
 
     public void addUserToList(Utilisateur utilisateur) {
         this.getUserListModel().addElement(utilisateur);
+    }
+
+    public void refreshUserList() {
+        this.getUserListModel().clear();
     }
 
     public void addConversationToList(Conversation conversation) {
@@ -122,10 +131,13 @@ public class MainFrame extends JFrame {
 
     public void displayConversation(Conversation conversation) {
         this.getMessageListModel().clear();
-        // for txt messages only
-        for (Message message :
-                conversation.getMessages()) {
-            this.getMessageListModel().addElement(displayTexte((Texte) message));
+        if (conversation != null) {
+            // for txt messages only
+            for (Message message :
+                    conversation.getMessages()) {
+                this.getMessageListModel().addElement(displayTexte((Texte) message));
+            }
+
         }
     }
 
@@ -135,6 +147,10 @@ public class MainFrame extends JFrame {
 
     public void removeConversation(Conversation conversation) {
         this.getConversationListModel().removeElement(conversation);
+    }
+
+    public void clearDisplayedMessages() {
+        this.getMessageListModel().clear();
     }
 
     private DefaultListModel getConversationListModel() {
