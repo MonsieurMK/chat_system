@@ -1,12 +1,12 @@
-package JavaProjectTemplate.Modele;
+package ChatSystem.Modele;
 
 import java.util.Date;
 
-public class Fichier extends Message {
+public class Image extends Message {
     private String lien;
 
-    public Fichier(Date dateEnvoi, String lien) {
-        super(null);
+    public Image(Date dateEnvoi, String lien, Utilisateur utilisateur) {
+        super(null, utilisateur);
     }
 
     public String getLien() {

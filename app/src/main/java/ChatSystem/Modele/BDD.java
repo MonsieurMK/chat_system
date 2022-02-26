@@ -1,4 +1,4 @@
-package JavaProjectTemplate.Modele;
+package ChatSystem.Modele;
 
 
 public class BDD {

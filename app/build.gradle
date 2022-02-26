@@ -5,6 +5,7 @@
  * For more details take a look at the 'Building Java & JVM projects' chapter in the Gradle
  * User Manual available at https://docs.gradle.org/7.3/userguide/building_java_projects.html
  */
+//file:noinspection GroovyAssignabilityCheck
 
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
@@ -39,6 +40,12 @@ dependencies {
 
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:30.1.1-jre'
+
+    // IntellijIdea UIDesigner generated code
+    implementation 'com.intellij:forms_rt:7.0.3'
+
+    // Command line arguments
+    implementation 'commons-cli:commons-cli:20040117.000000'
 }
 
 application {
@@ -106,23 +113,21 @@ tasks.jpackage {
 
     windows {
         winConsole = false
-        // icon = "${buildDir}/resources/main/logo_white.ico" // application icon in .ico format for windows
+        icon = "${buildDir}/resources/main/Logos/logo_sans_texte.ico" // application icon in .ico format for windows
     }
 
     // Linux
     linuxPackageName = jar.archiveBaseName.get()
     linuxShortcut = true
 
-    // icon = "${buildDir}/resources/main/logo.png" // application icon in .png format for linux
+    icon = "${buildDir}/resources/main/Logos/logo_sans_texte.ico" // application icon in .png format for linux
 
     // OS X
     macPackageName = "chatsystem" // Change to the desired package name (or jar.archiveBaseName.get())
 
-    /*
     mac {
-        icon = "${buildDir}/resources/main/logo_white.icns" // application icon in .icns format for macos
+        icon = "${buildDir}/resources/main/Logos/logo_sans_texte.icns" // application icon in .icns format for macos
     }
-    */
 }
 
 jpackage.dependsOn(jar)
