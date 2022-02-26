@@ -6,6 +6,8 @@ package ChatSystem;
 import ChatSystem.Controlleur.MainController;
 import ChatSystem.Modele.Utilisateur;
 import ChatSystem.Vue.MainFrame;
+import org.apache.commons.cli.*;
+import org.checkerframework.checker.nullness.Opt;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -14,47 +16,73 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Locale;
 
+/**
+ * Classe principale de l'application
+ */
+@SuppressWarnings("ConstantConditions")
 public class App {
 
+    /**
+     * Éxecute l'application
+     * @param args titre_fenetre portServerTCP portClientTCP portServerUDP portClientUDP
+     */
     public static void main(String[] args) {
-        // test détection utilisateurs
-        /*int serverPort = Integer.parseInt(args[3]);
-        int clientPort = Integer.parseInt(args[4]);
-        String msg = args[0];
-        InetAddress address = null;
-        try {
-            address = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        RecepteurUtilisateur recepteur = new RecepteurUtilisateur(serverPort);
-        EnvoyeurUtilisateur envoyeur = new EnvoyeurUtilisateur(clientPort, address, msg);
-        recepteur.start();
-        envoyeur.start();*/
-
-        // test envoi de messages
-        /*InetAddress address = null;
-        try {
-            address = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
-        ConnecteurConv connecteurConv = new ConnecteurConv(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
-        connecteurConv.start();
-        if (Integer.parseInt(args[1]) == 9000) {
-            Conversation conversation = connecteurConv.connecter(address);
-            GestionnaireConv.envoyerMessage("Test message", conversation);
-        }*/
-
-        // test interface graphique
-        // MainFrame mainFrame = new MainFrame("test", Boolean.parseBoolean(args[0]));
+        // langue
         Locale.setDefault(new Locale("fr", "FR"));
-        MainController mainController = new MainController(args[0],
-                Integer.parseInt(args[1]),
-                Integer.parseInt(args[2]),
-                Integer.parseInt(args[3]),
-                Integer.parseInt(args[4]),
-                args[5]);
+
+        Options options = new Options();
+
+        Option title = new Option("t", "title", true, "title of the window");
+        title.setOptionalArg(true);
+        title.setType(String.class);
+
+        Option tcpServer = new Option("ts", "tcpServerPort", true, "TCP server port");
+        tcpServer.setOptionalArg(true);
+        tcpServer.setType(Integer.class);
+
+        Option tcpClient = new Option("tc", "tcpClientPort", true, "TCP client port");
+        tcpClient.setOptionalArg(true);
+        tcpClient.setType(Integer.class);
+
+        Option udpServer = new Option("us", "udpServerPort", true, "UDP server port");
+        udpServer.setOptionalArg(true);
+        udpServer.setType(Integer.class);
+
+        Option udpClient = new Option("uc", "udpServerPort", true, "UDP client port");
+        udpClient.setOptionalArg(true);
+        udpClient.setType(Integer.class);
+
+        Option username = new Option("n", "username", true, "Username");
+        username.setOptionalArg(true);
+        username.setType(String.class);
+
+        Option fullscreen = new Option("fs", "isFullscreen", true, "Is fullscreen");
+        fullscreen.setOptionalArg(true);
+        fullscreen.setType(Boolean.class);
+
+        options.addOption(title);
+        options.addOption(tcpServer);
+        options.addOption(tcpClient);
+        options.addOption(udpServer);
+        options.addOption(udpClient);
+        options.addOption(username);
+        options.addOption(fullscreen);
+
+        CommandLineParser parser = new BasicParser();
+
+        CommandLine cmd = null;
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        MainController mainController = new MainController(cmd.getOptionValue("t", "ChatSystem"),
+                Integer.parseInt(cmd.getOptionValue("ts", "9000")),
+                Integer.parseInt(cmd.getOptionValue("tc", "9000")),
+                Integer.parseInt(cmd.getOptionValue("us", "9001")),
+                Integer.parseInt(cmd.getOptionValue("uc", "9001")),
+                cmd.getOptionValue("n", "noUsername"),
+                Boolean.parseBoolean(cmd.getOptionValue("fs", "true")));
     }
 }

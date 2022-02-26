@@ -14,17 +14,44 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Gestionnaire de l'ensemble des conversations et des utilisateurs du système,
+ * classe principale du système
+ */
 public class GestionnaireConv {
+    /**
+     * Ensemble des conversations du système
+     */
     private final List<Conversation> conversations = new ArrayList<>();
 
-    //private List<Utilisateur> utilisateurs = new ArrayList<>();
+    /**
+     * Utilisateurs par adresses IP
+     */
     private final HashMap<InetAddress, Utilisateur> addressUtilisateurHashMap = new HashMap<>();
 
+    /**
+     * Utilisateur courant du système
+     */
     private UtilisateurPrive utilisateurPrive;
+    /**
+     * Connecteur de conversations
+     */
     private final ConnecteurConv connecteurConv;
 
+    /**
+     * Controleur principal
+     */
     private final MainController mainController;
 
+    /**
+     * Crée un gestionnaire de conversations
+     * @param privateUsername pseudonyme de l'utilisateur courant du système
+     * @param mainController controleur principal
+     * @param tcpServerPort port d'écoute TCP
+     * @param tcpClientPort port d'envoi TCP
+     * @param udpServerPort port d'écoute UDP
+     * @param udpClientPort port d'envoi UDP
+     */
     public GestionnaireConv(String privateUsername, MainController mainController,
                             int tcpServerPort, int tcpClientPort,
                             int udpServerPort, int udpClientPort) {
@@ -39,7 +66,7 @@ public class GestionnaireConv {
         this.connecteurConv.start();
 
         RecepteurUtilisateur recepteurUtilisateur = new RecepteurUtilisateur(udpServerPort, this);
-        EnvoyeurUtilisateur envoyeurUtilisateur = new EnvoyeurUtilisateur(udpClientPort, this.utilisateurPrive.getAddresseIP(), this.utilisateurPrive.getPseudonyme());
+        EnvoyeurUtilisateur envoyeurUtilisateur = new EnvoyeurUtilisateur(udpClientPort, this.utilisateurPrive.getPseudonyme());
         recepteurUtilisateur.start();
         envoyeurUtilisateur.start();
     }
@@ -47,6 +74,11 @@ public class GestionnaireConv {
     public void changerPseudo(Utilisateur utilisateur, String pseudonyme) {
     }
 
+    /**
+     * Ouvre une conversation depuis son client
+     * @param utilisateur utilisateur membre de la conversation
+     * @return la conversation ouverte
+     */
     public Conversation ouvrirConversation(Utilisateur utilisateur) {
         Conversation conversation = this.connecteurConv.connecter(utilisateur);
         if (!this.conversations.contains(conversation)) {
@@ -55,15 +87,27 @@ public class GestionnaireConv {
         return conversation;
     }
 
+    /**
+     * Ferme une conversation
+     * @param conversation conversation à fermer
+     */
     public void fermerConversation(Conversation conversation) {
         this.conversations.remove(conversation);
         this.mainController.removeConversation(conversation);
     }
 
+    /**
+     * Retourne l'utilisateur courant du système
+     * @return utilisateur courant du système
+     */
     public UtilisateurPrive getUtilisateurPrive() {
         return utilisateurPrive;
     }
 
+    /**
+     * Ajoute une conversation ouverte depuis un autre hôte
+     * @param socket socket associé à la conversation ouverte
+     */
     public void ajouterConversation(Socket socket) {
         Utilisateur utilisateur = this.mainController.getUtilisateurFromAddress(socket.getInetAddress());
         Conversation conversation = new Conversation(utilisateur.getPseudonyme(), utilisateur, socket, this);
@@ -74,17 +118,30 @@ public class GestionnaireConv {
         }
     }
 
-    // change String to Message
+    /**
+     * Envoie un message dans une conversation
+     * @param message message à envoyer
+     * @param conversation conversation où l'on souhaite envoyer le message
+     */
     public void envoyerMessage(String message, Conversation conversation) {
         // debug test text message only
+        // change String to Message
         conversations.get(conversations.indexOf(conversation)).envoyerMessage(new Texte(LocalDateTime.now(), message, this.utilisateurPrive));
-        System.out.println("Message sent");
     }
 
+    /**
+     * Gère la réception d'un message reçu
+     * @param conversation conversation correspondant au message
+     * @param message message reçu
+     */
     public void receptionMessage(Conversation conversation, Message message) {
         this.mainController.receiveMessage(conversation, message);
     }
 
+    /**
+     * Détecte un utilisateur connecté
+     * @param utilisateur utilisateur détécté
+     */
     public void detectUser(Utilisateur utilisateur) {
         if (utilisateur != null &&
                 !this.addressUtilisateurHashMap.containsKey(utilisateur.getAddresseIP())) {
@@ -93,6 +150,9 @@ public class GestionnaireConv {
         }
     }
 
+    /**
+     * Vide la liste des utilisateurs connectés
+     */
     public void refreshUserList() {
         this.addressUtilisateurHashMap.clear();
         this.mainController.refreshUserList();

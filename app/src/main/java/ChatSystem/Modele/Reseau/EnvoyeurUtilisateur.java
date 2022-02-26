@@ -5,23 +5,58 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
+/**
+ * Classe opérant les envois de messages UDP pour indiquer sa présence sur le système
+ */
 public class EnvoyeurUtilisateur extends Thread {
 
+    /**
+     * Port par défaut
+     */
     public static final int PORT = 9001;
+    /**
+     * Taille du buffer d'envoi des messages
+     */
     public static final int TAILLE_BUFFER = 1024;
 
-    public static final int PERIODE_ENVOI = 2000; // en ms
+    /**
+     * Période d'envoi des messages (en ms)
+     */
+    public static final int PERIODE_ENVOI = 2000;
 
+    /**
+     * Socket UDP
+     */
     private DatagramSocket sock;
+    /**
+     * Paquet UDP
+     */
     private DatagramPacket packet;
+    /**
+     * Buffer des messages
+     */
     private byte[] buffer;
 
-    // debug
+    /**
+     * Port utilisé
+     */
     private final int port;
+    /**
+     * Message à envoyer
+     */
     private final String msg;
 
-    public EnvoyeurUtilisateur(int port, InetAddress address, String msg) {
-        this.port = port;
+    /**
+     * Crée l'envoyeur
+     * @param port port utilisé pour envoyer les messages, si le port spécifié est 0 le port par défaut sera utilisé (9000)
+     * @param msg message à envoyer (typiquement le pseudonyme de l'utilisateur courant)
+     */
+    public EnvoyeurUtilisateur(int port, String msg) {
+        if (port == 0) {
+            this.port = PORT;
+        } else {
+            this.port = port;
+        }
         this.msg = msg;
         try {
             this.sock = new DatagramSocket();
@@ -32,6 +67,10 @@ public class EnvoyeurUtilisateur extends Thread {
         this.buffer = new byte[TAILLE_BUFFER];
     }
 
+    /**
+     * Envoi d'un message en broadcast pour signaler sa présence
+     * @param msg message à envoyer
+     */
     public void envoyer(String msg) {
         try {
             this.buffer = msg.getBytes(StandardCharsets.UTF_8);
@@ -56,6 +95,9 @@ public class EnvoyeurUtilisateur extends Thread {
         }
     }
 
+    /**
+     * Envoi périodique du message
+     */
     @SuppressWarnings({"InfiniteLoopStatement", "BusyWait"})
     @Override
     public void run() {

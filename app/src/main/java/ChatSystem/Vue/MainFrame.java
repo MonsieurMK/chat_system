@@ -24,7 +24,10 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.Date;
 import java.util.ResourceBundle;
 
-@SuppressWarnings({"rawtypes", "Convert2Lambda", "unchecked", "SameParameterValue"})
+/**
+ * Interface graphique de l'application
+ */
+@SuppressWarnings({"rawtypes", "Convert2Lambda", "unchecked", "SameParameterValue", "ConstantConditions"})
 public class MainFrame extends JFrame {
     private JPanel mainPanel;
     private JPanel sidePanel;
@@ -38,14 +41,30 @@ public class MainFrame extends JFrame {
     private JButton sendButton;
     private JPanel sendingPanel;
 
+    /**
+     * Controlleur principal
+     */
     private final MainController mainController;
 
+    /**
+     * Formatteur de date et d'heure
+     */
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM HH:mm:ss");
 
+    /**
+     * Crée l'interface graphique
+     *
+     * @param title          titre de la fenêtre
+     * @param isFullscreen   vrai si en plein écran
+     * @param mainController controlleur principal
+     */
     public MainFrame(String title, boolean isFullscreen, MainController mainController) {
         super(title);
 
         this.mainController = mainController;
+
+        ImageIcon img = new ImageIcon(this.getClass().getResource("/Logos/logo_sans_texte.png"));
+        this.setIconImage(img.getImage());
 
         this.setContentPane(this.mainPanel);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -97,6 +116,9 @@ public class MainFrame extends JFrame {
         });
     }
 
+    /**
+     * Envoi un message écrit dans la zone de texte
+     */
     private void sendMessage() {
         if (!sendingMessageField.getText().isBlank()) {
             Texte message = new Texte(LocalDateTime.now(), sendingMessageField.getText(), this.mainController.getUtilisateurPrive());
@@ -106,29 +128,57 @@ public class MainFrame extends JFrame {
         }
     }
 
+    /**
+     * Affiche un message reçu
+     *
+     * @param message message reçu
+     */
     public void receiveMessage(Message message) {
         // txt only for now
         Texte txt = (Texte) message;
         this.getMessageListModel().addElement(displayTexte((Texte) message));
     }
 
+    /**
+     * Ajoute un utilisateur aux utilisateurs détectés et affichés
+     *
+     * @param utilisateur utilisateur à afficher
+     */
     public void addUserToList(Utilisateur utilisateur) {
         this.getUserListModel().addElement(utilisateur);
     }
 
+    /**
+     * Vide la liste des utilisateurs détectés
+     */
     public void refreshUserList() {
         this.getUserListModel().clear();
     }
 
+    /**
+     * Affiche une conversation sur la liste
+     *
+     * @param conversation conversation à afficher
+     */
     public void addConversationToList(Conversation conversation) {
         this.getConversationListModel().addElement(conversation);
     }
 
+    /**
+     * Permet ou non l'écriture et l'envoi de messages
+     *
+     * @param state vrai si permis, faux sinon
+     */
     public void setSendMessageState(boolean state) {
         this.sendingMessageField.setEnabled(state);
         this.sendButton.setEnabled(state);
     }
 
+    /**
+     * Affiche le contenu d'une conversation
+     *
+     * @param conversation conversation à afficher
+     */
     public void displayConversation(Conversation conversation) {
         this.getMessageListModel().clear();
         if (conversation != null) {
@@ -141,26 +191,55 @@ public class MainFrame extends JFrame {
         }
     }
 
+    /**
+     * Formate texte dans la zone de messages
+     *
+     * @param texte texte à afficher
+     * @return texte formaté
+     */
     public static String displayTexte(Texte texte) {
         return "(" + texte.getDateEnvoi().format(DATE_FORMAT) + ")" + texte.getEnvoyeur().getPseudonyme() + ">" + texte.getContenu();
     }
 
+    /**
+     * Retire une conversation de la liste
+     *
+     * @param conversation conversation à retirer
+     */
     public void removeConversation(Conversation conversation) {
         this.getConversationListModel().removeElement(conversation);
     }
 
+    /**
+     * Efface les messages affichés
+     */
     public void clearDisplayedMessages() {
         this.getMessageListModel().clear();
     }
 
+    /**
+     * Retourne la liste modifiable des conversations
+     *
+     * @return liste modifiable
+     */
     private DefaultListModel getConversationListModel() {
         return (DefaultListModel) this.conversationsList.getModel();
     }
 
+    /**
+     * Retourne la liste modifiable des utilisateurs
+     *
+     * @return liste modifiable
+     */
     private DefaultListModel getUserListModel() {
         return (DefaultListModel) this.usersList.getModel();
     }
 
+    /**
+     * Retourne la liste modifiable des messages
+     *
+     * @return liste modifiable
+     */
     private DefaultListModel getMessageListModel() {
         return (DefaultListModel) this.messagesList.getModel();
     }
@@ -308,4 +387,5 @@ public class MainFrame extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
+
 }
