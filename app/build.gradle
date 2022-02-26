@@ -70,6 +70,10 @@ task myJavadocs(type: Javadoc) {
     source = sourceSets.main.allJava
 }
 
+javadoc {
+    options.tags = [ "noinspection" ]
+}
+
 // Generate executable jar
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
