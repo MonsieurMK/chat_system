@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"ChatSystem"},{"l":"ChatSystem.Controlleur"},{"l":"ChatSystem.Modele"},{"l":"ChatSystem.Modele.Reseau"},{"l":"ChatSystem.Vue"}];updateSearchResults();
