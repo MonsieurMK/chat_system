@@ -4,31 +4,60 @@ package ChatSystem.Modele;
 import java.net.InetAddress;
 import java.util.Objects;
 
+/**
+ * Représente un utilisateur du système
+ */
 public class Utilisateur {
-    private InetAddress addresseIP;
+    /**
+     * Addresse IP de l'utilisateur
+     */
+    private final InetAddress addresseIP;
 
+    /**
+     * Pseudonyme unique de l'utilisateur
+     */
     private String pseudonyme;
 
+    /**
+     * Conversation associée à l'utilisateur (1 pour cette version)
+     */
     private Conversation conversation;
 
+    /**
+     * Crée un utilisateur
+     * @param addresseIP addresse IP de l'utilisateur
+     * @param pseudonyme pseudonyme de l'utilisateur
+     */
     public Utilisateur(InetAddress addresseIP, String pseudonyme) {
         this.addresseIP = addresseIP;
         this.pseudonyme = pseudonyme;
     }
 
+    /**
+     * Retourne l'addresse IP de l'utilisateur
+     * @return addresse IP de l'utilisateur
+     */
     public InetAddress getAddresseIP() {
         // Automatically generated method. Please delete this comment before entering specific code.
         return this.addresseIP;
     }
 
+    /**
+     * Retourne le pseudonyme de l'utilisateur
+     * @return pseudonyme de l'utilisateur
+     */
     public String getPseudonyme() {
         // Automatically generated method. Please delete this comment before entering specific code.
         return this.pseudonyme;
     }
 
-    public void setPseudonyme(String value) {
+    /**
+     * Modifie le pseudonyme de l'utilisateur
+     * @param pseudo nouveau pseudonyme
+     */
+    public void setPseudonyme(String pseudo) {
         // Automatically generated method. Please delete this comment before entering specific code.
-        this.pseudonyme = value;
+        this.pseudonyme = pseudo;
     }
 
     @Override
