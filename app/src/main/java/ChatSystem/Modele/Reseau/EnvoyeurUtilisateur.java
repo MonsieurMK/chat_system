@@ -1,6 +1,9 @@
 package ChatSystem.Modele.Reseau;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
@@ -71,9 +74,15 @@ public class EnvoyeurUtilisateur extends Thread {
      * Envoi d'un message en broadcast pour signaler sa présence
      * @param msg message à envoyer
      */
-    public void envoyer(String msg) {
+    public void envoyer(String msg, MessageReseauType type) {
         try {
-            this.buffer = msg.getBytes(StandardCharsets.UTF_8);
+            // creation du message
+            MessageReseau msgRzo = new MessageReseau(type, msg);
+            ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+            ObjectOutputStream ooStream = new ObjectOutputStream(bStream);
+            ooStream.writeObject(msgRzo);
+            ooStream.close();
+            this.buffer = bStream.toByteArray();
 
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
@@ -85,8 +94,7 @@ public class EnvoyeurUtilisateur extends Thread {
                         continue;
                     }
 
-                    this.packet = new DatagramPacket(this.buffer, msg.length(), broadcast, this.port);
-
+                    this.packet = new DatagramPacket(this.buffer, this.buffer.length, broadcast, this.port);
                     this.sock.send(this.packet);
                 }
             }
@@ -102,7 +110,7 @@ public class EnvoyeurUtilisateur extends Thread {
     @Override
     public void run() {
         while (true) {
-            this.envoyer(this.msg);
+            this.envoyer(this.msg, MessageReseauType.CONNECT);
             try {
                 Thread.sleep(PERIODE_ENVOI);
             } catch (InterruptedException e) {

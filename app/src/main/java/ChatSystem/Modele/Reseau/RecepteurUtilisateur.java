@@ -4,7 +4,9 @@ import ChatSystem.Controlleur.MainController;
 import ChatSystem.Modele.GestionnaireConv;
 import ChatSystem.Modele.Utilisateur;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -89,36 +91,34 @@ public class RecepteurUtilisateur extends Thread {
     }
 
     /**
-     * Écoute les messages UDP entrants
-     * @return l'utilisateur détecté
-     */
-    public Utilisateur recevoir() {
-        this.packet = new DatagramPacket(this.buffer, TAILLE_BUFFER);
-        try {
-            this.sock.receive(this.packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (!this.localAddresses.contains(this.packet.getAddress())) {
-            return new Utilisateur(this.packet.getAddress(), new String(this.packet.getData(), 0, this.packet.getLength()));
-        }
-        return null;
-    }
-
-    /**
      * Écoute périodique
      */
-    @SuppressWarnings({"InfiniteLoopStatement", "BusyWait"})
+    @SuppressWarnings({"InfiniteLoopStatement"})
     @Override
     public void run() {
         while(true) {
+            // reception
+            this.packet = new DatagramPacket(this.buffer, TAILLE_BUFFER);
             try {
-                Thread.sleep(PERIODE_ATTENTE);
-            } catch (InterruptedException e) {
+                this.sock.receive(this.packet);
+                if (!this.localAddresses.contains(this.packet.getAddress())) {
+                    ObjectInputStream oiStream = new ObjectInputStream(new ByteArrayInputStream(this.packet.getData()));
+                    MessageReseau msgRzo = (MessageReseau) oiStream.readObject();
+                    oiStream.close();
+                    Utilisateur utilisateur = new Utilisateur(this.packet.getAddress(), msgRzo.getUsername());
+                    if (msgRzo.getType() == MessageReseauType.CONNECT) {
+                        // connexion
+                        this.gestionnaireConv.detectUser(utilisateur);
+                    } else {
+                        // deconnexion
+                        this.gestionnaireConv.disconnectUser(utilisateur);
+                    }
+                }
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            this.gestionnaireConv.refreshUserList();
-            this.gestionnaireConv.detectUser(this.recevoir());
+
+            //this.gestionnaireConv.detectUser(this.recevoir());
         }
     }
 }

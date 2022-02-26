@@ -3,6 +3,7 @@ package ChatSystem.Modele;
 import ChatSystem.Controlleur.MainController;
 import ChatSystem.Modele.Reseau.ConnecteurConv;
 import ChatSystem.Modele.Reseau.EnvoyeurUtilisateur;
+import ChatSystem.Modele.Reseau.MessageReseauType;
 import ChatSystem.Modele.Reseau.RecepteurUtilisateur;
 
 import java.net.InetAddress;
@@ -43,6 +44,8 @@ public class GestionnaireConv {
      */
     private final MainController mainController;
 
+    private final EnvoyeurUtilisateur envoyeurUtilisateur;
+
     /**
      * Crée un gestionnaire de conversations
      * @param privateUsername pseudonyme de l'utilisateur courant du système
@@ -66,9 +69,9 @@ public class GestionnaireConv {
         this.connecteurConv.start();
 
         RecepteurUtilisateur recepteurUtilisateur = new RecepteurUtilisateur(udpServerPort, this);
-        EnvoyeurUtilisateur envoyeurUtilisateur = new EnvoyeurUtilisateur(udpClientPort, this.utilisateurPrive.getPseudonyme());
+        this.envoyeurUtilisateur = new EnvoyeurUtilisateur(udpClientPort, this.utilisateurPrive.getPseudonyme());
         recepteurUtilisateur.start();
-        envoyeurUtilisateur.start();
+        this.envoyeurUtilisateur.start();
     }
 
     public void changerPseudo(Utilisateur utilisateur, String pseudonyme) {
@@ -91,9 +94,15 @@ public class GestionnaireConv {
      * Ferme une conversation
      * @param conversation conversation à fermer
      */
-    public void fermerConversation(Conversation conversation) {
+    public void fermerConversationDistante(Conversation conversation) {
         this.conversations.remove(conversation);
         this.mainController.removeConversation(conversation);
+    }
+
+    public void fermerConversation(Conversation conversation) {
+        int index = this.conversations.indexOf(conversation);
+        this.conversations.get(index).closeConversation();
+        this.conversations.remove(index);
     }
 
     /**
@@ -150,11 +159,25 @@ public class GestionnaireConv {
         }
     }
 
+    public void disconnectUser(Utilisateur utilisateur) {
+        if (utilisateur != null &&
+                this.addressUtilisateurHashMap.containsKey(utilisateur.getAddresseIP())) {
+            this.addressUtilisateurHashMap.remove(utilisateur.getAddresseIP());
+            this.mainController.disconnectUser(utilisateur);
+        }
+    }
+
     /**
      * Vide la liste des utilisateurs connectés
+     * @deprecated
      */
+    @Deprecated
     public void refreshUserList() {
         this.addressUtilisateurHashMap.clear();
         this.mainController.refreshUserList();
+    }
+
+    public void envoyerDeconnexion() {
+        this.envoyeurUtilisateur.envoyer(this.utilisateurPrive.getPseudonyme(), MessageReseauType.DISCONNECT);
     }
 }

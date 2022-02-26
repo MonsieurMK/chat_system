@@ -155,6 +155,14 @@ public class Conversation extends Thread {
         return socket;
     }
 
+    public void closeConversation() {
+        try {
+            this.socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Réception des messages entrants
      */
@@ -184,7 +192,7 @@ public class Conversation extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.gestionnaireConv.fermerConversation(this);
+        this.gestionnaireConv.fermerConversationDistante(this);
     }
 
     @Override

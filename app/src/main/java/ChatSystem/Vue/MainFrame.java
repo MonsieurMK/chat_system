@@ -7,21 +7,15 @@ import ChatSystem.Modele.Texte;
 import ChatSystem.Modele.Utilisateur;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.sun.tools.javac.Main;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.util.Date;
 import java.util.ResourceBundle;
 
 /**
@@ -40,6 +34,8 @@ public class MainFrame extends JFrame {
     private JTextField sendingMessageField;
     private JButton sendButton;
     private JPanel sendingPanel;
+    private JPanel messageOptionPanel;
+    private JButton closeConversationButton;
 
     /**
      * Controlleur principal
@@ -50,6 +46,8 @@ public class MainFrame extends JFrame {
      * Formatteur de date et d'heure
      */
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM HH:mm:ss");
+
+    private Conversation currentConversation = null;
 
     /**
      * Crée l'interface graphique
@@ -74,6 +72,13 @@ public class MainFrame extends JFrame {
         }
         this.setVisible(true);
 
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                MainFrame.this.mainController.deconnexion();
+            }
+        });
+
         // send button
         sendButton.addActionListener(new ActionListener() {
             @Override
@@ -94,7 +99,18 @@ public class MainFrame extends JFrame {
         });
 
         // user clicked on users list
-        usersList.addListSelectionListener(new ListSelectionListener() {
+        usersList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JList list = (JList) e.getSource();
+                if (e.getClickCount() == 2) {
+                    int index = list.locationToIndex(e.getPoint());
+                    MainFrame.this.mainController.openConversation((Utilisateur) MainFrame.this.getUserListModel().get(index));
+                }
+            }
+        });
+
+        /*usersList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
@@ -103,17 +119,48 @@ public class MainFrame extends JFrame {
                     }
                 }
             }
-        });
+        });*/
 
         // conversation clicked on conversations list
-        conversationsList.addListSelectionListener(new ListSelectionListener() {
+        conversationsList.addMouseListener(new MouseAdapter() {
             @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    MainFrame.this.displayConversation((Conversation) conversationsList.getSelectedValue());
+            public void mouseClicked(MouseEvent e) {
+                JList list = (JList) e.getSource();
+                if (e.getClickCount() == 2) {
+                    int index = list.locationToIndex(e.getPoint());
+                    Conversation conversation = (Conversation) MainFrame.this.getConversationListModel().get(index);
                 }
             }
         });
+
+        /*conversationsList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    Conversation conversation = (Conversation) conversationsList.getSelectedValue();
+                    MainFrame.this.displayConversation(conversation);
+                    MainFrame.this.currentConversation = conversation;
+                }
+            }
+        });*/
+
+        // close conversation button clicked
+        closeConversationButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Conversation conversation = (Conversation) conversationsList.getSelectedValue();
+                if (conversation == null) {
+                    MainFrame.this.mainController.closeConversation(MainFrame.this.currentConversation);
+                } else {
+                    MainFrame.this.mainController.closeConversation((Conversation) conversationsList.getSelectedValue());
+                }
+                // might directly just use current conversation ?
+            }
+        });
+    }
+
+    public void setCurrentConversation(Conversation currentConversation) {
+        this.currentConversation = currentConversation;
     }
 
     /**
@@ -148,9 +195,18 @@ public class MainFrame extends JFrame {
         this.getUserListModel().addElement(utilisateur);
     }
 
+    public void removeUserFromList(Utilisateur utilisateur) {
+        if (this.getUserListModel().contains(utilisateur)) {
+            this.getUserListModel().removeElement(utilisateur);
+        }
+    }
+
     /**
      * Vide la liste des utilisateurs détectés
+     *
+     * @deprecated
      */
+    @Deprecated
     public void refreshUserList() {
         this.getUserListModel().clear();
     }
@@ -164,6 +220,12 @@ public class MainFrame extends JFrame {
         this.getConversationListModel().addElement(conversation);
     }
 
+    public void removeConversationFromList(Conversation conversation) {
+        if (this.getConversationListModel().contains(conversation)) {
+            this.getConversationListModel().removeElement(conversation);
+        }
+    }
+
     /**
      * Permet ou non l'écriture et l'envoi de messages
      *
@@ -172,6 +234,10 @@ public class MainFrame extends JFrame {
     public void setSendMessageState(boolean state) {
         this.sendingMessageField.setEnabled(state);
         this.sendButton.setEnabled(state);
+    }
+
+    public void setCloseConversationState(boolean state) {
+        this.closeConversationButton.setEnabled(state);
     }
 
     /**
@@ -296,7 +362,7 @@ public class MainFrame extends JFrame {
         final JScrollPane scrollPane1 = new JScrollPane();
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridy = 1;
         gbc.weightx = 1.0;
         gbc.weighty = 15.0;
         gbc.fill = GridBagConstraints.BOTH;
@@ -309,7 +375,7 @@ public class MainFrame extends JFrame {
         sendingPanel.setLayout(new GridBagLayout());
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
@@ -335,6 +401,25 @@ public class MainFrame extends JFrame {
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         sendingPanel.add(sendButton, gbc);
+        messageOptionPanel = new JPanel();
+        messageOptionPanel.setLayout(new GridBagLayout());
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        centerPanel.add(messageOptionPanel, gbc);
+        closeConversationButton = new JButton();
+        closeConversationButton.setEnabled(false);
+        this.$$$loadButtonText$$$(closeConversationButton, this.$$$getMessageFromBundle$$$("main_panel", "close"));
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.anchor = GridBagConstraints.EAST;
+        messageOptionPanel.add(closeConversationButton, gbc);
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;

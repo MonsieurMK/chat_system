@@ -1,9 +1,6 @@
 package ChatSystem.Controlleur;
 
 import ChatSystem.Modele.*;
-import ChatSystem.Modele.Reseau.ConnecteurConv;
-import ChatSystem.Modele.Reseau.EnvoyeurUtilisateur;
-import ChatSystem.Modele.Reseau.RecepteurUtilisateur;
 import ChatSystem.Vue.MainFrame;
 
 import java.net.InetAddress;
@@ -72,9 +69,18 @@ public class MainController {
         }
     }
 
+    public void disconnectUser(Utilisateur utilisateur) {
+        if (this.addressUtilisateurHashMap.containsKey(utilisateur.getAddresseIP())) {
+            this.addressUtilisateurHashMap.remove(utilisateur.getAddresseIP());
+            this.mainFrame.removeUserFromList(utilisateur);
+        }
+    }
+
     /**
      * Vide la liste des utilisateurs connectés
+     * @deprecated
      */
+    @Deprecated
     public void refreshUserList() {
         this.addressUtilisateurHashMap.clear();
         this.mainFrame.refreshUserList();
@@ -85,13 +91,19 @@ public class MainController {
      * @param conversation conversation à ouvrir
      */
     public void openReceivedConversation(Conversation conversation) {
+        startConversation(conversation);
+    }
+
+    private void startConversation(Conversation conversation) {
         if(!this.conversationsActives.contains(conversation)) {
             this.mainFrame.addConversationToList(conversation);
+            this.mainFrame.setCloseConversationState(true);
             this.conversationsActives.add(conversation);
 
             this.currentConversation = conversation;
             this.mainFrame.setSendMessageState(true);
             this.mainFrame.displayConversation(conversation);
+            this.mainFrame.setCurrentConversation(conversation);
         }
     }
 
@@ -124,10 +136,14 @@ public class MainController {
      * @param conversation conversation à retirer
      */
     public void removeConversation(Conversation conversation) {
-        this.conversationsActives.remove(conversation);
-        this.mainFrame.removeConversation(conversation);
-        if (this.currentConversation.equals(conversation)) {
-            this.mainFrame.clearDisplayedMessages();
+        if (this.conversationsActives.contains(conversation)) {
+            this.conversationsActives.remove(conversation);
+            this.mainFrame.removeConversation(conversation);
+            if (this.currentConversation.equals(conversation)) {
+                this.mainFrame.clearDisplayedMessages();
+                this.mainFrame.setCloseConversationState(false);
+                this.mainFrame.setSendMessageState(false);
+            }
         }
     }
     /*
@@ -144,13 +160,22 @@ public class MainController {
      */
     public void openConversation(Utilisateur utilisateur) {
         Conversation conversation = this.gestionnaireConv.ouvrirConversation(utilisateur);
-        if (!this.conversationsActives.contains(conversation)) {
-            this.mainFrame.addConversationToList(conversation);
-            this.conversationsActives.add(conversation);
+        this.mainFrame.setCurrentConversation(conversation);
+        startConversation(conversation);
+    }
 
-            this.currentConversation = conversation;
-            this.mainFrame.setSendMessageState(true);
-            this.mainFrame.displayConversation(conversation);
+    public void closeConversation(Conversation conversation) {
+        if (this.conversationsActives.contains(conversation)) {
+            this.mainFrame.removeConversationFromList(conversation);
+            this.conversationsActives.remove(conversation);
+            if (this.currentConversation.equals(conversation)) {
+                this.currentConversation = null;
+                this.mainFrame.clearDisplayedMessages();
+                this.mainFrame.setCloseConversationState(false);
+                this.mainFrame.setSendMessageState(false);
+            }
+
+            this.gestionnaireConv.fermerConversation(conversation);
         }
     }
 
@@ -169,6 +194,10 @@ public class MainController {
      */
     public UtilisateurPrive getUtilisateurPrive() {
         return this.gestionnaireConv.getUtilisateurPrive();
+    }
+
+    public void deconnexion() {
+        this.gestionnaireConv.envoyerDeconnexion();
     }
     /*
     called from view
