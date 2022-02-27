@@ -2,6 +2,7 @@ package ChatSystem.Modele;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Classe représentant les messages échangés
@@ -16,14 +17,27 @@ public abstract class Message {
      */
     private final Utilisateur envoyeur;
 
+    private final UUID idMessage;
+
+    private final Conversation conversation;
+
     /**
      * Crée un nouveau message
      * @param dateEnvoi date et heure d'envoi
      * @param envoyeur utilisateur envoyeur du message
      */
-    public Message(LocalDateTime dateEnvoi, Utilisateur envoyeur) {
+    public Message(LocalDateTime dateEnvoi, Utilisateur envoyeur, Conversation conversation) {
         this.dateEnvoi = dateEnvoi;
         this.envoyeur = envoyeur;
+        this.conversation = conversation;
+        this.idMessage = UUID.randomUUID();
+    }
+
+    public Message(LocalDateTime dateEnvoi, Utilisateur envoyeur, Conversation conversation, UUID idMessage) {
+        this.dateEnvoi = dateEnvoi;
+        this.envoyeur = envoyeur;
+        this.conversation = conversation;
+        this.idMessage = idMessage;
     }
 
     /**
@@ -41,6 +55,14 @@ public abstract class Message {
     public LocalDateTime getDateEnvoi() {
         // Automatically generated method. Please delete this comment before entering specific code.
         return this.dateEnvoi;
+    }
+
+    public UUID getIdMessage() {
+        return idMessage;
+    }
+
+    public Conversation getConversation() {
+        return conversation;
     }
 
     /**

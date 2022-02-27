@@ -5,8 +5,8 @@ import java.util.Date;
 public class Image extends Message {
     private String lien;
 
-    public Image(Date dateEnvoi, String lien, Utilisateur utilisateur) {
-        super(null, utilisateur);
+    public Image(Date dateEnvoi, String lien, Utilisateur utilisateur, Conversation conversation) {
+        super(null, utilisateur, conversation);
     }
 
     public String getLien() {

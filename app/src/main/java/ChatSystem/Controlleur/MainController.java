@@ -46,10 +46,12 @@ public class MainController {
      */
     public MainController(String title, int tcpServerPort, int tcpClientPort, int udpServerPort, int udpClientPort,
                           String privateUsername, boolean isFullscreen) {
+        BDD.connect();
+        BDD.createTables();
         this.mainFrame = new MainFrame(title, isFullscreen, this);
         this.gestionnaireConv = new GestionnaireConv(privateUsername, this, tcpServerPort, tcpClientPort, udpServerPort, udpClientPort);
-        this.addressUtilisateurHashMap = new HashMap<>();
         this.conversationsActives = new ArrayList<>();
+        this.addressUtilisateurHashMap = new HashMap<>();
 
         this.currentConversation = null;
     }
@@ -92,6 +94,19 @@ public class MainController {
      */
     public void openReceivedConversation(Conversation conversation) {
         startConversation(conversation);
+
+        Utilisateur utilisateur = conversation.getUtilisateurs().get(0);
+        if (BDD.getUtilisateur(utilisateur.getAddresseIP()) == null) {
+            BDD.ajouterUtilisateur(utilisateur);
+        }
+        boolean found = BDD.chercherConversation(conversation);
+        if (found) {
+            System.out.println("conv dans la bdd");
+            this.mainFrame.displayConversation(conversation);
+        } else {
+            System.out.println("nouvelle conv");
+            BDD.ajouterConversation(conversation);
+        }
     }
 
     private void startConversation(Conversation conversation) {
@@ -113,8 +128,16 @@ public class MainController {
      * @param message message reçu
      */
     public void receiveMessage(Conversation conversation, Message message) {
-        this.currentConversation = this.conversationsActives.get(this.conversationsActives.indexOf(conversation));
-        this.mainFrame.receiveMessage(message);
+        //this.currentConversation = this.conversationsActives.get(this.conversationsActives.indexOf(conversation));
+        //this.currentConversation.ajouterMessage(message);
+        //this.mainFrame.receiveMessage(message);
+        if (this.currentConversation.equals(this.conversationsActives.get(this.conversationsActives.indexOf(conversation)))) {
+            this.mainFrame.receiveMessage(message);
+        }
+        this.conversationsActives.get(this.conversationsActives.indexOf(conversation)).ajouterMessage(message);
+
+        // BDD
+        BDD.ajouterMessage(message);
     }
 
     /**
@@ -162,6 +185,19 @@ public class MainController {
         Conversation conversation = this.gestionnaireConv.ouvrirConversation(utilisateur);
         this.mainFrame.setCurrentConversation(conversation);
         startConversation(conversation);
+
+        // BDD
+        if (BDD.getUtilisateur(utilisateur.getAddresseIP()) == null) {
+            BDD.ajouterUtilisateur(utilisateur);
+        }
+        boolean found = BDD.chercherConversation(conversation);
+        if (found) {
+            System.out.println("conv dans la bdd");
+            this.mainFrame.displayConversation(conversation);
+        } else {
+            System.out.println("nouvelle conv");
+            BDD.ajouterConversation(conversation);
+        }
     }
 
     public void closeConversation(Conversation conversation) {
@@ -184,8 +220,11 @@ public class MainController {
      * @param message message à envoyer
      */
     public void sendMessage(Message message) {
-        // only for text
         this.currentConversation.envoyerMessage(message);
+        this.currentConversation.ajouterMessage(message);
+
+        // BDD
+        BDD.ajouterMessage(message);
     }
 
     /**
@@ -193,7 +232,7 @@ public class MainController {
      * @return utilisateur courant du système
      */
     public UtilisateurPrive getUtilisateurPrive() {
-        return this.gestionnaireConv.getUtilisateurPrive();
+        return GestionnaireConv.getUtilisateurPrive();
     }
 
     public void deconnexion() {

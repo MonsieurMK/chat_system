@@ -19,11 +19,6 @@ public class Utilisateur {
     private String pseudonyme;
 
     /**
-     * Conversation associée à l'utilisateur (1 pour cette version)
-     */
-    private Conversation conversation;
-
-    /**
      * Crée un utilisateur
      * @param addresseIP addresse IP de l'utilisateur
      * @param pseudonyme pseudonyme de l'utilisateur

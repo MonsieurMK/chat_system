@@ -129,6 +129,8 @@ public class MainFrame extends JFrame {
                 if (e.getClickCount() == 2) {
                     int index = list.locationToIndex(e.getPoint());
                     Conversation conversation = (Conversation) MainFrame.this.getConversationListModel().get(index);
+                    MainFrame.this.displayConversation(conversation);
+                    MainFrame.this.currentConversation = conversation;
                 }
             }
         });
@@ -168,7 +170,7 @@ public class MainFrame extends JFrame {
      */
     private void sendMessage() {
         if (!sendingMessageField.getText().isBlank()) {
-            Texte message = new Texte(LocalDateTime.now(), sendingMessageField.getText(), this.mainController.getUtilisateurPrive());
+            Texte message = new Texte(LocalDateTime.now(), sendingMessageField.getText(), this.mainController.getUtilisateurPrive(), this.currentConversation);
             this.mainController.sendMessage(message);
             this.getMessageListModel().addElement(displayTexte(message));
             sendingMessageField.setText("");

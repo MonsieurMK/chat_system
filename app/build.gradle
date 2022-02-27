@@ -46,6 +46,12 @@ dependencies {
 
     // Command line arguments
     implementation 'commons-cli:commons-cli:20040117.000000'
+
+    // SQLITE JDBC for the database
+    implementation 'org.xerial:sqlite-jdbc:3.36.0.3'
+
+    // Java user directories
+    implementation 'net.harawata:appdirs:1.2.1'
 }
 
 application {

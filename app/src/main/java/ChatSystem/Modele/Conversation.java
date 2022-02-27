@@ -7,10 +7,7 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Représente une conversation
@@ -35,10 +32,12 @@ public class Conversation extends Thread {
      */
     private String nom;
 
+    private UUID idConversation;
+
     /**
      * Utilisateurs participants à la conversation (1 pour la version actuelle)
      */
-    private List<Utilisateur> utilisateurs = new ArrayList<>();
+    private final List<Utilisateur> utilisateurs;
 
     /**
      * Messages de la conversation
@@ -72,7 +71,6 @@ public class Conversation extends Thread {
     public void setNom(String nom) {
         // Automatically generated method. Please delete this comment before entering specific code.
         this.nom = nom;
-        this.utilisateurs = new ArrayList<>();
     }
 
     /**
@@ -83,6 +81,7 @@ public class Conversation extends Thread {
     public Conversation(String nom, Socket socket) {
         this.nom = nom;
         this.socket = socket;
+        this.utilisateurs = new ArrayList<>();
 
         try {
             this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
@@ -105,6 +104,23 @@ public class Conversation extends Thread {
         this.utilisateurs.add(utilisateur);
         this.socket = socket;
         this.gestionnaireConv = gestionnaireConv;
+        this.idConversation = UUID.randomUUID();
+
+        try {
+            this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+            this.out = new PrintStream(this.socket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Conversation(String nom, Utilisateur utilisateur, Socket socket, GestionnaireConv gestionnaireConv, UUID idConversation) {
+        this.nom = nom;
+        this.utilisateurs = new ArrayList<>();
+        this.utilisateurs.add(utilisateur);
+        this.socket = socket;
+        this.gestionnaireConv = gestionnaireConv;
+        this.idConversation = idConversation;
 
         try {
             this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
@@ -136,6 +152,18 @@ public class Conversation extends Thread {
      */
     public List<Message> getMessages() {
         return messages;
+    }
+
+    public List<Utilisateur> getUtilisateurs() {
+        return utilisateurs;
+    }
+
+    public UUID getIdConversation() {
+        return idConversation;
+    }
+
+    public void setIdConversation(UUID idConversation) {
+        this.idConversation = idConversation;
     }
 
     /**
@@ -175,7 +203,7 @@ public class Conversation extends Thread {
                 msg = this.in.readLine();
                 if (msg != null) {
                     // works for single user conv only
-                    Message message = new Texte(LocalDateTime.now(), msg, this.utilisateurs.get(0));
+                    Message message = new Texte(LocalDateTime.now(), msg, this.utilisateurs.get(0), this);
                     this.gestionnaireConv.receptionMessage(this, message);
                     this.messages.add(message);
                 } else {

@@ -28,12 +28,12 @@ public class GestionnaireConv {
     /**
      * Utilisateurs par adresses IP
      */
-    private final HashMap<InetAddress, Utilisateur> addressUtilisateurHashMap = new HashMap<>();
+    private static final HashMap<InetAddress, Utilisateur> addressUtilisateurHashMap = new HashMap<>();
 
     /**
      * Utilisateur courant du système
      */
-    private UtilisateurPrive utilisateurPrive;
+    private static UtilisateurPrive utilisateurPrive;
     /**
      * Connecteur de conversations
      */
@@ -60,7 +60,10 @@ public class GestionnaireConv {
                             int udpServerPort, int udpClientPort) {
         // debug
         try {
-            this.utilisateurPrive = new UtilisateurPrive(privateUsername);
+            utilisateurPrive = new UtilisateurPrive(privateUsername);
+            if (BDD.getUtilisateur(utilisateurPrive.getAddresseIP()) == null) {
+                BDD.ajouterUtilisateur(utilisateurPrive);
+            }
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -68,10 +71,16 @@ public class GestionnaireConv {
         this.connecteurConv = new ConnecteurConv(tcpServerPort, tcpClientPort, this);
         this.connecteurConv.start();
 
+        addressUtilisateurHashMap.put(utilisateurPrive.getAddresseIP(), utilisateurPrive);
+
         RecepteurUtilisateur recepteurUtilisateur = new RecepteurUtilisateur(udpServerPort, this);
-        this.envoyeurUtilisateur = new EnvoyeurUtilisateur(udpClientPort, this.utilisateurPrive.getPseudonyme());
+        this.envoyeurUtilisateur = new EnvoyeurUtilisateur(udpClientPort, utilisateurPrive.getPseudonyme());
         recepteurUtilisateur.start();
         this.envoyeurUtilisateur.start();
+    }
+
+    public static Utilisateur getUtilisateurFromIP(InetAddress adresseIP) {
+        return addressUtilisateurHashMap.get(adresseIP);
     }
 
     public void changerPseudo(Utilisateur utilisateur, String pseudonyme) {
@@ -109,7 +118,7 @@ public class GestionnaireConv {
      * Retourne l'utilisateur courant du système
      * @return utilisateur courant du système
      */
-    public UtilisateurPrive getUtilisateurPrive() {
+    public static UtilisateurPrive getUtilisateurPrive() {
         return utilisateurPrive;
     }
 
@@ -135,7 +144,7 @@ public class GestionnaireConv {
     public void envoyerMessage(String message, Conversation conversation) {
         // debug test text message only
         // change String to Message
-        conversations.get(conversations.indexOf(conversation)).envoyerMessage(new Texte(LocalDateTime.now(), message, this.utilisateurPrive));
+        conversations.get(conversations.indexOf(conversation)).envoyerMessage(new Texte(LocalDateTime.now(), message, utilisateurPrive, conversation));
     }
 
     /**
@@ -153,16 +162,16 @@ public class GestionnaireConv {
      */
     public void detectUser(Utilisateur utilisateur) {
         if (utilisateur != null &&
-                !this.addressUtilisateurHashMap.containsKey(utilisateur.getAddresseIP())) {
-            this.addressUtilisateurHashMap.put(utilisateur.getAddresseIP(), utilisateur);
+                !addressUtilisateurHashMap.containsKey(utilisateur.getAddresseIP())) {
+            addressUtilisateurHashMap.put(utilisateur.getAddresseIP(), utilisateur);
             this.mainController.detectUser(utilisateur);
         }
     }
 
     public void disconnectUser(Utilisateur utilisateur) {
         if (utilisateur != null &&
-                this.addressUtilisateurHashMap.containsKey(utilisateur.getAddresseIP())) {
-            this.addressUtilisateurHashMap.remove(utilisateur.getAddresseIP());
+                addressUtilisateurHashMap.containsKey(utilisateur.getAddresseIP())) {
+            addressUtilisateurHashMap.remove(utilisateur.getAddresseIP());
             this.mainController.disconnectUser(utilisateur);
         }
     }
@@ -173,11 +182,11 @@ public class GestionnaireConv {
      */
     @Deprecated
     public void refreshUserList() {
-        this.addressUtilisateurHashMap.clear();
+        addressUtilisateurHashMap.clear();
         this.mainController.refreshUserList();
     }
 
     public void envoyerDeconnexion() {
-        this.envoyeurUtilisateur.envoyer(this.utilisateurPrive.getPseudonyme(), MessageReseauType.DISCONNECT);
+        this.envoyeurUtilisateur.envoyer(utilisateurPrive.getPseudonyme(), MessageReseauType.DISCONNECT);
     }
 }

@@ -2,6 +2,7 @@ package ChatSystem.Modele;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Représente un message textuel
@@ -18,8 +19,13 @@ public class Texte extends Message {
      * @param contenu contenu textuel du message
      * @param envoyeur utilisateur envoyeur du message
      */
-    public Texte(LocalDateTime dateEnvoi, String contenu, Utilisateur envoyeur) {
-        super(dateEnvoi, envoyeur);
+    public Texte(LocalDateTime dateEnvoi, String contenu, Utilisateur envoyeur, Conversation conversation) {
+        super(dateEnvoi, envoyeur, conversation);
+        this.contenu = contenu;
+    }
+
+    public Texte(LocalDateTime dateEnvoi, String contenu, Utilisateur envoyeur, Conversation conversation, UUID idMessage) {
+        super(dateEnvoi, envoyeur, conversation, idMessage);
         this.contenu = contenu;
     }
 
