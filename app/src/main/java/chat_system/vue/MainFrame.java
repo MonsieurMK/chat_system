@@ -1,16 +1,14 @@
-package ChatSystem.Vue;
+package chat_system.vue;
 
-import ChatSystem.Controlleur.MainController;
-import ChatSystem.Modele.Conversation;
-import ChatSystem.Modele.Message;
-import ChatSystem.Modele.Texte;
-import ChatSystem.Modele.Utilisateur;
+import chat_system.controlleur.MainController;
+import chat_system.modele.Conversation;
+import chat_system.modele.Message;
+import chat_system.modele.Texte;
+import chat_system.modele.Utilisateur;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.lang.reflect.Method;

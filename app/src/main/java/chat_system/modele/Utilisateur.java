@@ -1,8 +1,7 @@
-package ChatSystem.Modele;
+package chat_system.modele;
 
 
 import java.net.InetAddress;
-import java.util.Objects;
 
 /**
  * Représente un utilisateur du système

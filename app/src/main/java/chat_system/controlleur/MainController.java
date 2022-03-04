@@ -1,7 +1,7 @@
-package ChatSystem.Controlleur;
+package chat_system.controlleur;
 
-import ChatSystem.Modele.*;
-import ChatSystem.Vue.MainFrame;
+import chat_system.modele.*;
+import chat_system.vue.MainFrame;
 
 import java.net.InetAddress;
 import java.util.ArrayList;

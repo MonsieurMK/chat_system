@@ -1,7 +1,6 @@
-package ChatSystem.Modele;
+package chat_system.modele;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 /**

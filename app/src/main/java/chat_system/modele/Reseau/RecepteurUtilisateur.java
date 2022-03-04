@@ -1,8 +1,7 @@
-package ChatSystem.Modele.Reseau;
+package chat_system.modele.Reseau;
 
-import ChatSystem.Controlleur.MainController;
-import ChatSystem.Modele.GestionnaireConv;
-import ChatSystem.Modele.Utilisateur;
+import chat_system.modele.GestionnaireConv;
+import chat_system.modele.Utilisateur;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -1,11 +1,9 @@
-package ChatSystem.Modele.Reseau;
+package chat_system.modele.Reseau;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
 /**

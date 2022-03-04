@@ -1,4 +1,4 @@
-package ChatSystem.Modele;
+package chat_system.modele;
 
 import java.util.Date;
 

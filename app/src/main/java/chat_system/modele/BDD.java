@@ -1,4 +1,4 @@
-package ChatSystem.Modele;
+package chat_system.modele;
 
 
 import net.harawata.appdirs.AppDirs;
@@ -20,7 +20,7 @@ public class BDD {
 
     public static void connect() {
         AppDirs appDirs = AppDirsFactory.getInstance();
-        String dataFolder = appDirs.getUserDataDir("ChatSystem", null, "MonsieurSinge");
+        String dataFolder = appDirs.getUserDataDir("chat_system", null, "MonsieurSinge");
         (new File(dataFolder)).mkdirs();
 
         String url = "jdbc:sqlite:" + dataFolder + File.separator + "database.bd";

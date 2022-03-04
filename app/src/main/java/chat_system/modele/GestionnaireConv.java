@@ -1,17 +1,16 @@
-package ChatSystem.Modele;
+package chat_system.modele;
 
-import ChatSystem.Controlleur.MainController;
-import ChatSystem.Modele.Reseau.ConnecteurConv;
-import ChatSystem.Modele.Reseau.EnvoyeurUtilisateur;
-import ChatSystem.Modele.Reseau.MessageReseauType;
-import ChatSystem.Modele.Reseau.RecepteurUtilisateur;
+import chat_system.controlleur.MainController;
+import chat_system.modele.Reseau.ConnecteurConv;
+import chat_system.modele.Reseau.EnvoyeurUtilisateur;
+import chat_system.modele.Reseau.MessageReseauType;
+import chat_system.modele.Reseau.RecepteurUtilisateur;
 
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 

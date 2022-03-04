@@ -1,4 +1,4 @@
-package ChatSystem.Modele.Reseau;
+package chat_system.modele.Reseau;
 
 import java.io.Serializable;
 
