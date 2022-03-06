@@ -22,7 +22,7 @@ plugins {
 }
 
 // Change to project name
-mainClassName = 'ChatSystem.App'
+mainClassName = 'chat_system.App'
 // Automatically gets the version from the latest git tag
 project.version = gitVersionCalculator.calculateVersion("v").minus(".dev").minus("+dev").replaceAll("\\+[0-9]+", "")
 

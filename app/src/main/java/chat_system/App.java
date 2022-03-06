@@ -40,7 +40,7 @@ public class App {
         udpServer.setOptionalArg(true);
         udpServer.setType(Integer.class);
 
-        Option udpClient = new Option("uc", "udpServerPort", true, "UDP client port");
+        Option udpClient = new Option("uc", "udpClientPort", true, "UDP client port");
         udpClient.setOptionalArg(true);
         udpClient.setType(Integer.class);
 

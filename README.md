@@ -1,68 +1,59 @@
-# Template for Java application
 
-This is a template repository for a Java application built with Gradle. This is designed to be used with the *git flow* Workflow.
+![Logo](/app/src/main/resources/Logos/logo_large.png)
 
-## Table of contents
+# Chat system
 
-- [Gradle](#gradle)
-- [GitHub Actions workflows](#github-actions-workflows)
-- [Git Flow cheatsheet](#git-flow-cheatsheet)
-  - [Initialization](#initialization)
-  - [Adding a feature](#adding-a-feature)
-  - [Creating a new release](#creating-a-new-release)
-  - [Applying a hotfix](#applying-a-hotfix)
+A local network decentralized lightweight chat system in Java
 
-## Gradle
+## 1. Features
 
-This template includes :
-- Executable jar generation
-- Javadoc generation
-- OS specific installers for Windows, Ubuntu and Macos with jpackage *(Macos installers will not be generated for pre-releases with version major lower than 1)*
+- Detection of all connected users on local network
+- Two-sided conversation opening
+- Sending messages to other users
+- History of previous messages
 
-## GitHub Actions workflows
+## 2. Demo
 
-There are two GitHub Actions workflows :
-- Develop : Build and tests on push and pull request on the *develop* branch
-- Release : Build, generate and publish the Javadoc on GitHub Pages, create release/pre-release with executable jar and installers when new tags are pushed
+![Demo](/app/src/main/resources/demo_chat_system_cropped.gif)
 
-## Git Flow cheatsheet
+## 3. Installation and execution
 
-### Initialization
+### 3.1 Using installers
 
-- **To initialise the Git Flow workflow** : ```git flow init```
+Install for :
 
-*Set the version tag prefix to "v"*
+- [Windows (.exe)](https://github.com/MonsieurMK/chat_system/releases/download/v0.1.3/chatsystem-0.1.3.exe)
+- [Linux (.deb)](https://github.com/MonsieurMK/chat_system/releases/download/v0.1.3/chatsystem-0.1.3.deb)
+- MacOS (.dmg) *no pre-releases on MacOS*
 
-You should now have two branches : **main** and **develop**
+And simply launch the installed executable application
 
-### Adding a feature
+### 3.2 Using jar archive
 
-- **To start a feature** : ```git flow feature start feature_name```
+The ```.jar``` archive can be downloaded [here](https://github.com/MonsieurMK/chat_system/releases/download/v0.1.3/chatsystem-0.1.3.jar).
 
-A new branch will be created from the develop branch.
+And it can be run with the following program arguments :
 
-- **To finish the feature and merge to the develop branch** : ```git flow feature finish feature_name```
+| Argument        | Shortname | Type      | Default value | Description                    |
+|-----------------|-----------|-----------|---------------|--------------------------------|
+| `title`         | `t`       | `string`  | chat_system   | Title of the window            |
+| `tcpServerPort` | `ts`      | `integer` | 9000          | TCP server port                |
+| `tcpClientPort` | `tc`      | `integer` | 9000          | TCP client port                |
+| `udpServerPort` | `us`      | `integer` | 9001          | UDP server port                |
+| `udpClientPort` | `uc`      | `integer` | 9001          | UDP client port                |
+| `username`      | `n`       | `string`  | noUsername    | Username                       |
+| `isFullscreen`  | `fs`      | `boolean` | true          | Execution in fullscreen or not |
 
-- **You can also push a feature to the remote repository** : ```git flow feature publish feature_name```
+## 4. Documentation
 
-- **Or pull it from the remote repository** : ```git flow feature pull origin feature_name```
+[Full javadoc](https://monsieurmk.github.io/chat_system/)
 
-### Creating a new release
 
-- **To start a new release** : ```git flow release start 1.2.3```
+## 5. Author
 
-A new branch will be created from the develop branch with the associated tag (here with the tag 1.2.3)
+[Morgan H. Pelloux](https://www.github.com/MonsieurMK)
 
-- **To finish the release and merge it to both the develop and the main branch** : ```git flow release finish 1.2.3```
 
-- **Then you can push the corresponding tag** : ```git push --tags```
+## 6. Feedback
 
-*Before pushing the tag make sure all the local branches have been pushed to remote*
-
-### Applying a hotfix
-
-- **To start a hotfix on the main branch** : ```git flow hotfix start 1.2.4```
-
-This will create a hotfix branch from the main branch
-
-- **Then to finish the hotfix and merge it to both the develop and main branch** : ```git flow hotfix finish 1.2.4```
+If you have any feedback, please reach out to us at morganhpelloux@gmail.com
