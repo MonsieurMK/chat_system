@@ -1,20 +1,13 @@
-
-![Logo](/app/src/main/resources/Logos/logo_large.png)
-
 # Chat system
 
 A local network decentralized lightweight chat system in Java
 
-## 1. Features
+## 1. Features (main branch not up to date)
 
 - Detection of all connected users on local network
 - Two-sided conversation opening
 - Sending messages to other users
 - History of previous messages
-
-## 2. Demo
-
-![Demo](/app/src/main/resources/demo_chat_system_cropped.gif)
 
 ## 3. Installation and execution
 
